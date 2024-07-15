@@ -1,6 +1,12 @@
-﻿using System;
+﻿using Kohde.Assessment.Container;
+using Kohde.Assessment.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Kohde.Assessment
 {
@@ -16,22 +22,31 @@ namespace Kohde.Assessment
             // the below class declarations looks like a 1st year student developed it
             // NOTE: this includes the class declarations as well
             // IMPROVE THE ARCHITECTURE 
-            Human human = new Human();
-            human.Name = "John";
-            human.Age = 35;
-            human.Gender = "M";
+            Human human = new Human()
+            {
+                Name = "John",
+                Age = 35,
+                Gender = "M",
+            };
+
             Console.WriteLine(human.GetDetails());
 
-            Dog dog = new Dog();
-            dog.Name = "Walter";
-            dog.Age = 7;
-            dog.Food = "Epol";
+            Dog dog = new Dog()
+            {
+                Name = "Walter",
+                Age = 7,
+                Food = "Epol"
+            };
+
             Console.WriteLine(dog.GetDetails());
 
-            Cat cat = new Cat();
-            cat.Name = "Snowball";
-            cat.Age = 35;
-            cat.Food = "Whiskers";
+            Cat cat = new Cat()
+            {
+                Name = "Snowball",
+                Age = 35,
+                Food = "Whiskers"
+            };
+
             Console.WriteLine(cat.GetDetails());
 
             #endregion
@@ -73,7 +88,7 @@ namespace Kohde.Assessment
             try
             {
                 Dog bulldog = null;
-                var disposeDog = (IDisposable) bulldog;
+                var disposeDog = (IDisposable)bulldog;
                 disposeDog.Dispose();
             }
             catch (Exception ex)
@@ -85,7 +100,7 @@ namespace Kohde.Assessment
 
             #region Assessment E
 
-            DisposeSomeObject();            
+            DisposeSomeObject();
 
             #endregion
 
@@ -96,9 +111,9 @@ namespace Kohde.Assessment
             // output must still render as: Name: [name] Age: [age]
             // THE METHOD THAT YOU CREATE MUST BE STATIC AND DECLARED IN THE PROGRAM CLASS
             // NB!! PLEASE NAME THE METHOD: ShowSomeMammalInformation
-            ShowSomeHumanInformation(human);
-            ShowSomeDogInformation(dog);
-            ShowSomeCatInformation(cat);
+            ShowSomeMammalInformation(human);
+            ShowSomeMammalInformation(dog);
+            ShowSomeMammalInformation(cat);
 
 
             // # SECTION B #
@@ -109,10 +124,10 @@ namespace Kohde.Assessment
 
             // UNCOMMENT THE FOLLOWING PIECE OF CODE - IT WILL CAUSE A COMPILER ERROR - BECAUSE YOU HAVE TO CREATE THE METHOD
 
-            //string a = Program.GenericTester(walter => walter.GetDetails(), dog);
-            //Console.WriteLine("Result A: {0}", a);
-            //int b = Program.GenericTester(snowball => snowball.Age, cat);
-            //Console.WriteLine("Result B: {0}", b);
+            string a = Program.GenericTester(walter => walter.GetDetails(), dog);
+            Console.WriteLine("Result A: {0}", a);
+            int b = Program.GenericTester(snowball => snowball.Age, cat);
+            Console.WriteLine("Result B: {0}", b);
 
             #endregion
 
@@ -159,20 +174,18 @@ namespace Kohde.Assessment
             // > DECLARE ALL THE METHODS WITHIN THE PROGRAM CLASS !!
             // > DO NOT ALTER THE EXISTING CODE
 
-            /*  
-                const string abc = "asduqwezxc";
-                foreach (var vowel in abc.SelectOnlyVowels())
-                {
-                    Console.WriteLine("{0}", vowel);
-                }
-            */
+            const string abc = "asduqwezxc";
+            foreach (var vowel in abc.SelectOnlyVowels())
+            {
+                Console.WriteLine("{0}", vowel);
+            }
+
             // < REQUIRED OUTPUT => a u e
 
             // > UNCOMMENT THE CODE BELOW AND CREATE A METHOD SO THAT THE FOLLOWING CODE WILL WORK
             // > DECLARE ALL THE METHODS WITHIN THE PROGRAM CLASS !!
             // > DO NOT ALTER THE EXISTING CODE
 
-            /*
             List<Dog> dogs = new List<Dog>
             {
                 new Dog {Age = 8, Name = "Max"},
@@ -196,7 +209,6 @@ namespace Kohde.Assessment
             // < CATS REQUIRED OUTPUT =>
             //      Name: Capri Age: 1
             //      Name: Captain Hooks Age: 3
-            */
 
             #endregion
 
@@ -208,15 +220,16 @@ namespace Kohde.Assessment
 
         public static void PerformanceTest()
         {
-            var someLongDataString = "";
+            //Switching to StringBuilder to avoid new memory allocations for new strings created with each normal string append.
+            StringBuilder someLongDataString = new StringBuilder();
             const int sLen = 30, loops = 500000; // YOU MAY NOT CHANGE THE NUMBER OF LOOPS IN ANY WAY !!
             var source = new string('X', sLen);
 
             // DO NOT CHANGE THE ACTUAL FOR LOOP IN ANY WAY !!
             // in other words, you may not change: for (INITIALIZATION; CONDITION; INCREMENT/DECREMENT)
-            for (var i = 0; i < loops; i++) 
+            for (var i = 0; i < loops; i++)
             {
-                someLongDataString += source;
+                someLongDataString.Append(source);
             }
         }
 
@@ -227,56 +240,55 @@ namespace Kohde.Assessment
         public static int GetFirstEvenValue(List<int> numbers)
         {
             // RETURN THE FIRST EVEN NUMBER IN THE SEQUENCE
-            var first = numbers.Where(x => x % 2 == 0).First();
+            var first = numbers.Where(x => x % 2 == 0).FirstOrDefault();
             return first;
         }
 
         public static string GetSingleStringValue(List<string> stringList)
         {
             // THE OUTPUT MUST RENDER THE FIRST ITEM THAT CONTAINS AN 'a' INSIDE OF IT
-            var first = stringList.Where(x => x.IndexOf("a") != -1).Single();
+            var first = stringList.Where(x => x.IndexOf("a") != -1).SingleOrDefault();
             return first;
         }
 
         #endregion
-        
+
         #region Assessment E Method
 
         public static DisposableObject DisposeSomeObject()
         {
             // IMPROVE THE FOLLOWING PIECE OF CODE
             // as well as the PerformSomeLongRunningOperation method
-            var disposableObject = new DisposableObject();
-            try
+
+            //Swapped out the try finally for a using statement.
+            //Reason for this is to ensure that the object is disposed when code completes successfully or exception occurs.
+            using (var disposableObject = new DisposableObject())
             {
                 disposableObject.PerformSomeLongRunningOperation();
                 disposableObject.RaiseEvent("raised event");
-            }
-            finally
-            {
-                disposableObject.Dispose();
+                //disposableObject.Dispose();
+                return disposableObject;
             }
 
-            return disposableObject;
         }
 
         #endregion
 
         #region Assessment F Methods
 
-        public static void ShowSomeHumanInformation(Human human)
+        public static void ShowSomeMammalInformation<T>(T Entity) where T : Earthling
         {
-            Console.WriteLine("Name:" + human.Name + " Age: " + human.Age);
+            Console.WriteLine(Entity.GetDetails());
         }
 
-        public static void ShowSomeDogInformation(Dog dog)
+        public static TResult GenericTester<T, TResult>(Func<T, TResult> func, T obj) where T : class, new()
         {
-            Console.WriteLine("Name:" + dog.Name + " Age: " + dog.Age);
-        }
+            if (obj == null)
+            {
+                obj = new T();
+            }
 
-        public static void ShowSomeCatInformation(Cat cat)
-        {
-            Console.WriteLine("Name:" + cat.Name + " Age: " + cat.Age);
+            return func(obj);
         }
 
         #endregion
@@ -289,9 +301,9 @@ namespace Kohde.Assessment
             {
                 ThrowException();
             }
-            catch (ArithmeticException e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
 
@@ -310,8 +322,19 @@ namespace Kohde.Assessment
             // CALL THE FOLLOWING METHOD: DisplaySomeStuff [WHICH IN JUST BELOW THIS ONE]
             // AND RETURN THE STRING CONTENT
 
+            // Get the MethodInfo object for the generic method
+            MethodInfo methodInfo = typeof(Program).GetMethod("DisplaySomeStuff", BindingFlags.Static | BindingFlags.Public);
+
+            // Make the generic method with a specific type argument
+            MethodInfo genericMethod = methodInfo.MakeGenericMethod(typeof(string));
+
+            // Invoke the method with the specific argument
+            object result = genericMethod.Invoke(null, new object[] { "Hello World" });
+
+            // Return the result as a string
+            return (string)result;
+
             // DO NOT CHANGE THE NAME, RETURN TYPE OR ANY IMPLEMENTATION OF THIS METHOD NOR THE BELOW METHOD
-            throw new NotImplementedException(); // ATT: REMOVE THIS LINE
         }
 
         public static string DisplaySomeStuff<T>(T toDisplay) where T : class
@@ -346,13 +369,68 @@ namespace Kohde.Assessment
              */
 
             // 1. register the interfaces and classes
-            // TODO: ???
+            // Register the interfaces and classes
+            Ioc.Container.Register<IDeviceProcessor, DeviceProcessor>();
+            Ioc.Container.Register<IDevice, SamsungDevice>();
 
             // 2. resolve the IDeviceProcessor
-            //var deviceProcessor = ???
+            var deviceProcessor = Ioc.Container.Resolve<IDeviceProcessor>();
             // call the GetDevicePrice method
-            //Console.WriteLine(deviceProcessor.GetDevicePrice());
+            Console.WriteLine(deviceProcessor.GetDevicePrice());
         }
+
+        #endregion
+
+        #region DungeonMethods
+
+        // Extension method to select only vowels
+        public static IEnumerable<char> SelectOnlyVowels(this IEnumerable<char> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            char[] vowels = { 'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U' };
+            return source.Where(c => vowels.Contains(c));
+        }
+
+        // This method passes InvokeLvlB1ExtensionMethod
+        // Extension method for CustomWhere accepting Expression<Func<T, bool>>
+        // I don't fully enjoy the use of yield return below - only because I don't fully understand it's under the hood functionality.
+        public static IEnumerable<T> CustomWhere<T>(this IEnumerable<T> source, Expression<Func<T, bool>> predicate)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            var compiledPredicate = predicate.Compile();
+            foreach (var item in source)
+            {
+                if (compiledPredicate(item))
+                {
+                    yield return item;
+                }
+            }
+        }
+
+
+        // This method passes InvokeLvlB2ExtensionMethod
+        // I don't fully enjoy the use of yield return below - only because I don't fully understand it's under the hood functionality. 
+        //public static IEnumerable<T> CustomWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        //{
+        //    if (source == null)
+        //        throw new ArgumentNullException(nameof(source));
+        //    if (predicate == null)
+        //        throw new ArgumentNullException(nameof(predicate));
+
+        //    foreach (var item in source)
+        //    {
+        //        if (predicate(item))
+        //        {
+        //            yield return item;
+        //        }
+        //    }
+        //}
 
         #endregion
     }

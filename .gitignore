@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Kohde.Assessment
+/Kohde.Assessment/obj/Debug
+/Kohde.Assessment.UnitTest/obj/Debug
+/Kohde.Assessment/.vs
+/Kohde.Assessment/bin/Debug
+/Kohde.Assessment.UnitTest/.vs
+/Kohde.Assessment.UnitTest/bin/Debug
