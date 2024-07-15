@@ -43,7 +43,7 @@ namespace Kohde.Assessment
             }
 
             // Free native resources
-            // Set instance of event handler to null
+            // Clear something happened event handler
             if (this.SomethingHappened != null)
             {
                 foreach (var d in this.SomethingHappened.GetInvocationList())
